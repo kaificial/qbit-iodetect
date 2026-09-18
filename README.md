@@ -1,5 +1,8 @@
-# QBIT - Iodetect (Firmware Archive)
+<div align="center">
+  <img src="logo.png" alt="QBIT Logo" width="200" />
+</div>
 
+# QBIT - Iodetect (Firmware Archive)
 **Iodetect** repository (Firmware Archive) - **Queen's Biomedical Innovation Team (QBIT)** (2025/2026). 
 
 Iodetect is a portable, point-of-care iodine screening system designed to measure urinary iodine levels in low-resource settings. The goal was to create an accessible, low-cost solution for iodine deficiency screening worldwide. 
