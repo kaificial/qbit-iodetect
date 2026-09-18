@@ -1,0 +1,250 @@
+//January 11th
+#include <LiquidCrystal_I2C.h>
+#include <Wire.h>
+
+
+#define SDA 13
+#define SCL 14
+int iodineLevel;
+
+
+const uint8_t buttonPins[] = {4, 5}; // 0 = NO, 1 = YES
+int stage = 0;
+
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+
+void setup() {
+  Wire.begin(SDA, SCL);
+
+
+  if (!i2CAddrTest(0x27)) {
+    lcd = LiquidCrystal_I2C(0x3F, 16, 2);
+  }
+
+
+  lcd.init();
+  lcd.backlight();
+
+
+  pinMode(buttonPins[0], INPUT_PULLUP);
+  pinMode(buttonPins[1], INPUT_PULLUP);
+
+
+  lcd.setCursor(0, 0);
+  lcd.print("Iodetect");
+  delay(2000);
+  lcd.clear();
+}
+
+
+void absorbancy()
+{
+  int iodineLevel1; //in mols/L
+  int absorbancy; //wavelength
+  int molar; //molar absorbancy
+  int length; //path length
+  iodineLevel1 = absorbancy/(molar*length); //concentration in mols/L
+  iodineLevel = (iodineLevel1  * 253.8 * 1,000,000); //convert to ug/L
+}
+
+
+void pregnancyIodine() //Iodine levels for pregnant women
+{
+ 
+  if(iodineLevel < 150)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Insufficent");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel >= 150 && iodineLevel < 250)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Adequate");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel >= 250 && iodineLevel < 500)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Above Requirments");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if (iodineLevel >= 500)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Excessive");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+}
+
+
+void iodine() //kids & adults who are not preagant or lactating
+{
+
+
+  if(iodineLevel < 20)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Severe Deficiency");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel >=20 && iodineLevel < 50)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Moderate Deficiency");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel>=50 && iodineLevel < 100)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Mild Deficiency");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel>=100 && iodineLevel < 200)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Adequate");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel>=200 && iodineLevel<300)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Over Adequate");
+    lcd.setCursor(0, 1);
+    lcd.print("Slight Risk");
+    delay(2000);
+    lcd.clear();
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+
+
+  else if(iodineLevel>=300)
+  {
+    lcd.setCursor(0, 0);
+    lcd.print("Excessive");
+    lcd.setCursor(0, 1);
+    delay(2000);
+    lcd.clear();
+    lcd.print("Health Risk");
+    lcd.setCursor(0, 1);
+    lcd.print("Iodine Level:");
+    lcd.print(iodineLevel);
+    lcd.print(" ug/L");
+  }
+}
+
+
+void loop() {
+
+
+  switch (stage) {
+    case 0:
+      lcd.setCursor(0, 0);
+      lcd.print("Are you female?");
+      lcd.setCursor(0, 1);
+      lcd.print("YES[ ]  NO[ ]");
+      readButtons();
+      stage++;
+      break;
+
+
+    case 1:
+      lcd.setCursor(0, 0);
+      lcd.print("Pregnant?");
+      lcd.setCursor(0, 1);
+      lcd.print("YES[ ]  NO[ ]");
+      readButtons();
+      stage++;
+      break;
+
+
+    case 2:
+      lcd.setCursor(0, 0);
+      lcd.print("Enter Sample");
+      delay(2000);
+      stage++;
+      break;
+
+
+    case 3:
+      lcd.setCursor(0, 0);
+      lcd.print("Analyzing...");
+      delay(3000);
+      stage++;
+      break;
+
+
+    case 4:
+      iodine();
+      while (true); // end program
+  }
+}
+
+
+bool i2CAddrTest(uint8_t addr)
+{
+  Wire.beginTransmission(addr);
+  return (Wire.endTransmission() == 0);
+}
+
+
+byte readButtons()
+{
+  while (true) {
+    if (digitalRead(buttonPins[1]) == LOW) {
+      delay(200);
+      return 1;
+    }
+    if (digitalRead(buttonPins[0]) == LOW) {
+      delay(200);
+      return 0;
+    }
+  }
+}
+
+
+
+
