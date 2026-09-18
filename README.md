@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="logo.png" alt="QBIT Logo" width="200" />
+  <img src="/public/logo.png" alt="QBIT Logo" width="200" style="border-radius: 20px;" />
 </div>
 
 # QBIT - Iodetect (Firmware Archive)
